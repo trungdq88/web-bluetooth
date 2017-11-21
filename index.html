@@ -1,0 +1,27 @@
+<script>
+  let characteristic;
+  async function connect() {
+    const device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [0xfff0] }]
+    });
+    const server = await device.gatt.connect();
+    console.log('Server', server);
+    const service = await server.getPrimaryService(0xfff0);
+    console.log('Service', service);
+    characteristic = await service.getCharacteristic(0xfff1);
+    console.log('Characteristic', characteristic);
+    changeColor('#ffff00');
+  }
+  async function changeColor(hexColor) {
+    const part1 = hexColor.replace('#', '').match(/../g).map(_ => parseInt(_, 16)).concat([100]).join(',');
+    const part2 = new Array(18 - part1.length).fill(',').join('');
+    const value = part1 + part2;
+    characteristic.writeValue(
+      new Uint8Array(value.split('').map(c => c.charCodeAt(0)))
+    )
+  }
+</script>
+
+<button onclick="connect()">Connect</button>
+
+<input type="color" onchange="changeColor(event.target.value)" />
