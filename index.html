@@ -4,13 +4,16 @@
     const device = await navigator.bluetooth.requestDevice({
       filters: [{ services: [0xfff0] }]
     });
+    document.querySelector('button').innerText = 'Connecting...';
+    document.querySelector('button').setAttribute('disabled', true);
     const server = await device.gatt.connect();
     console.log('Server', server);
     const service = await server.getPrimaryService(0xfff0);
     console.log('Service', service);
     characteristic = await service.getCharacteristic(0xfff1);
     console.log('Characteristic', characteristic);
-    changeColor('#ffff00');
+    document.querySelector('input').style.display = 'block';
+    document.querySelector('button').style.display = 'none';
   }
   async function changeColor(hexColor) {
     const part1 = hexColor.replace('#', '').match(/../g).map(_ => parseInt(_, 16)).concat([100]).join(',');
@@ -24,5 +27,5 @@
 
 <div style="zoom: 5">
 <button onclick="connect()">Connect</button>
-<input type="color" onchange="changeColor(event.target.value)" />
+<input style="display: none" type="color" onchange="changeColor(event.target.value)" />
 </div>
